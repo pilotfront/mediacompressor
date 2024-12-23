@@ -25,8 +25,8 @@ export default function handler(req, res) {
       // Determine file type based on file extension
       const ext = path.extname(file.originalFilename).toLowerCase();
 
+      // Handle Image Compression
       if (['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff'].includes(ext)) {
-        // Handle image compression
         const outputFilePath = path.join(process.cwd(), 'output.jpg');
         sharp(file.filepath)
           .resize({ width: (compressionSize / 100) * 1920 }) // Example resize based on compression size
@@ -45,8 +45,9 @@ export default function handler(req, res) {
               fs.unlinkSync(outputFilePath);
             });
           });
-      } else if (['.mp4', '.mov', '.avi', '.mkv'].includes(ext)) {
-        // Handle video compression
+      } 
+      // Handle Video Compression
+      else if (['.mp4', '.mov', '.avi', '.mkv'].includes(ext)) {
         const outputFilePath = path.join(process.cwd(), 'output.mp4');
         ffmpeg(file.filepath)
           .output(outputFilePath)
