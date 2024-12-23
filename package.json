@@ -1,22 +1,20 @@
 {
   "name": "media-compressor",
   "version": "1.0.0",
+  "description": "A media compression app",
+  "main": "index.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
   },
-"dependencies": {
-  "fluent-ffmpeg": "^2.1.2",
-  "formidable": "^3.1.1",
-  "sharp": "^0.32.1",
-  "image-size": "^0.9.1",  
-  "next": "12.2.0",
-  "react": "^18.0.0",
-  "react-dom": "^18.0.0"
-}
-
-    "eslint": "^8.0.0",
-    "eslint-config-next": "12.2.0"
+  "dependencies": {
+    "fluent-ffmpeg": "^2.1.2",
+    "formidable": "^3.1.1",
+    "sharp": "^0.32.1",
+    "image-size": "^0.9.1",
+    "next": "12.2.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   }
-
+}
