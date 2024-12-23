@@ -1,7 +1,7 @@
 {
   "name": "media-compressor",
   "version": "1.0.0",
-  "description": "A media compression app",
+  "description": "A media compression app using Cloudinary for video and image compression",
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
@@ -9,12 +9,16 @@
     "start": "next start"
   },
   "dependencies": {
-    "fluent-ffmpeg": "^2.1.2",
+    "fluent-ffmpeg": "^2.1.2", 
     "formidable": "^3.1.1",
-    "sharp": "^0.32.1",
-    "image-size": "^0.9.1",
+    "sharp": "^0.32.1",  
+    "cloudinary": "^1.29.0",  
     "next": "12.2.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": "16.x"
   }
 }
