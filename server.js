@@ -44,8 +44,5 @@ app.post('/convert', upload.single('image'), (req, res) => {
   fs.unlinkSync(req.file.path);
 });
 
-// Start the server
-app.listen(3000, () => {
-  console.log('Server is running on http://localhost:3000');
-});
-
+// Export serverless function for Vercel
+module.exports = app;
