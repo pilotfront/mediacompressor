@@ -1,17 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PNG to PDF Converter</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to PDF Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        input[type="file"] {
+            display: block;
+            margin: 20px auto;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-  <h1>Convert PNG to PDF</h1>
-  <form action="/convert" method="POST" enctype="multipart/form-data">
-    <label for="image">Choose a PNG image:</label>
-    <input type="file" name="image" accept=".png" required />
-    <button type="submit">Convert</button>
-  </form>
+
+    <div class="container">
+        <h1>PNG to PDF Converter</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" name="image" accept=".png" required />
+            <button type="submit">Convert to PDF</button>
+        </form>
+        <p id="message" style="color: #28a745; text-align: center; display: none;">Your PDF is ready!</p>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const message = document.getElementById('message');
+            message.style.display = 'none'; // Hide any previous messages
+
+            fetch('/convert', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.blob();
+                } else {
+                    throw new Error('Error during PDF conversion');
+                }
+            })
+            .then(blob => {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'converted.pdf';
+                link.click();
+                message.textContent = 'Your PDF is ready!';
+                message.style.display = 'block';
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+            });
+        });
+    </script>
+
 </body>
 </html>
-
