@@ -4,9 +4,14 @@ export default function Home() {
   const [file, setFile] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState('');
+  const [compressionSize, setCompressionSize] = useState(50); // Default to 50% compression size
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
+  };
+
+  const handleCompressionSizeChange = (e) => {
+    setCompressionSize(e.target.value);
   };
 
   const handleCompress = async () => {
@@ -15,22 +20,38 @@ export default function Home() {
 
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('compressionSize', compressionSize); // Send compression size to backend
 
-    const response = await fetch('/api/compress', {
-      method: 'POST',
-      body: formData,
-    });
+    try {
+      const response = await fetch('/api/compress', {
+        method: 'POST',
+        body: formData,
+      });
 
-    const blob = await response.blob();
-    const url = URL.createObjectURL(blob);
-    setDownloadUrl(url);
-    setIsProcessing(false);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setDownloadUrl(url);
+    } catch (error) {
+      console.error('Error during compression:', error);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
     <div style={{ padding: '20px', textAlign: 'center' }}>
       <h1>Media Compressor</h1>
       <input type="file" onChange={handleFileChange} />
+      <div>
+        <label>Compression Size (%)</label>
+        <input
+          type="number"
+          value={compressionSize}
+          onChange={handleCompressionSizeChange}
+          min="1"
+          max="100"
+        />
+      </div>
       <button onClick={handleCompress} disabled={isProcessing}>
         {isProcessing ? 'Compressing...' : 'Compress'}
       </button>
