@@ -28,7 +28,7 @@
       const imageFile = document.querySelector('input[name="image"]').files[0];
       formData.append('image', imageFile);
 
-      const response = await fetch('/api/compress/image', {
+      const response = await fetch('/api/compress', {
         method: 'POST',
         body: formData,
       });
@@ -44,7 +44,7 @@
       const videoFile = document.querySelector('input[name="video"]').files[0];
       formData.append('video', videoFile);
 
-      const response = await fetch('/api/compress/video', {
+      const response = await fetch('/api/compress', {
         method: 'POST',
         body: formData,
       });
