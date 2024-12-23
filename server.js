@@ -7,10 +7,11 @@ const sizeOf = require('image-size');
 
 const app = express();
 
+// Use memory storage for Multer (avoid using file system on Vercel)
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-// Serve static files from the public directory
+// Serve static files from the 'public' directory
 app.use(express.static('public'));
 
 // POST endpoint for converting image to PDF
