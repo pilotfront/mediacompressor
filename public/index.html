@@ -4,93 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PNG to PDF Converter</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #f4f4f4;
-    }
-    .container {
-      text-align: center;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 400px;
-    }
-    h1 {
-      margin-bottom: 20px;
-    }
-    input[type="file"] {
-      margin-bottom: 20px;
-    }
-    button {
-      padding: 10px 20px;
-      background-color: #4CAF50;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-    p {
-      margin-top: 20px;
-      color: #555;
-    }
-  </style>
 </head>
 <body>
-
-<div class="container">
   <h1>Convert PNG to PDF</h1>
-  <form id="uploadForm" enctype="multipart/form-data">
-    <input type="file" name="image" accept=".png" required>
-    <br>
-    <button type="submit">Upload and Convert</button>
+  <form action="/convert" method="POST" enctype="multipart/form-data">
+    <label for="image">Choose a PNG image:</label>
+    <input type="file" name="image" accept=".png" required />
+    <button type="submit">Convert</button>
   </form>
-  <p id="status"></p>
-</div>
-
-<script>
-  const form = document.getElementById('uploadForm');
-  const status = document.getElementById('status');
-
-  form.addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    const formData = new FormData(form);
-    status.textContent = 'Converting... Please wait.';
-
-    fetch('/api/convert', {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => {
-      if (response.ok) {
-        return response.blob();
-      }
-      throw new Error('Conversion failed');
-    })
-    .then(blob => {
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'converted.pdf';
-      link.click();
-      status.textContent = 'Conversion successful! Your PDF is ready.';
-    })
-    .catch(error => {
-      status.textContent = `Error: ${error.message}`;
-    });
-  });
-</script>
-
 </body>
 </html>
+
