@@ -1,26 +1,43 @@
-const multer = require('multer');
 const express = require('express');
-const path = require('path');
+const multer = require('multer');
+const sharp = require('sharp'); // For image compression
 const fs = require('fs');
+const path = require('path');
 
 const upload = multer({ dest: '/tmp/uploads/' });
+const app = express();
 
-module.exports = async (req, res) => {
-  if (req.method === 'POST') {
-    upload.single('file')(req, res, async (err) => {
-      if (err) {
-        return res.status(500).send('File upload failed.');
-      }
+app.post('/api/compress', upload.single('file'), async (req, res) => {
+  const file = req.file;
+  const targetSizeKB = parseInt(req.body.size, 10);
 
-      const file = req.file;
-      if (!file) {
-        return res.status(400).send('No file uploaded.');
-      }
-
-      // Example response to indicate file upload success
-      res.status(200).send('File uploaded successfully!');
-    });
-  } else {
-    res.status(405).send('Method Not Allowed');
+  if (!file || !targetSizeKB) {
+    return res.status(400).send('File and target size are required.');
   }
-};
+
+  try {
+    // Define output file path
+    const outputFilePath = `/tmp/uploads/compressed-${file.originalname}`;
+
+    // Use sharp to compress the image
+    await sharp(file.path)
+      .resize({ width: 800 }) // Resize width to 800px as an example
+      .jpeg({ quality: 80 }) // Adjust quality to 80
+      .toFile(outputFilePath);
+
+    // Send the compressed file
+    res.setHeader('Content-Disposition', `attachment; filename=${path.basename(outputFilePath)}`);
+    res.setHeader('Content-Type', 'application/octet-stream');
+
+    // Stream the compressed file to the response
+    fs.createReadStream(outputFilePath).pipe(res);
+  } catch (error) {
+    console.error('Error compressing file:', error);
+    res.status(500).send('Failed to compress the file.');
+  } finally {
+    // Clean up temporary files
+    fs.unlink(file.path, () => {});
+  }
+});
+
+module.exports = app;
