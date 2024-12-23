@@ -2,22 +2,18 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/compress.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "web/*",
-      "use": "@vercel/static"
+      "src": "package.json",
+      "use": "@vercel/next"
     }
   ],
   "routes": [
     {
       "src": "/api/compress",
-      "dest": "api/compress.js"
+      "dest": "/api/compress.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/web/$1"
+      "dest": "/$1"
     }
   ]
 }
