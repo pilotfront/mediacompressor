@@ -7,8 +7,9 @@
     "start": "next start"
   },
   "dependencies": {
-    "fluent-ffmpeg": "^2.1.2", 
-    "formidable": "^3.1.1", 
+    "fluent-ffmpeg": "^2.1.2",  // FFmpeg library for video compression
+    "formidable": "^3.1.1",     // Formidable for file uploads
+    "sharp": "^0.32.1",         // Sharp for image compression
     "next": "12.2.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
