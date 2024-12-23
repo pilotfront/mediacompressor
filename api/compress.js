@@ -1,7 +1,6 @@
 const express = require('express');
 const multer = require('multer');
-const sharp = require('sharp'); // Image compression
-const ffmpeg = require('fluent-ffmpeg'); // Video compression
+const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
 
@@ -18,28 +17,27 @@ app.post('/api/compress', upload.single('file'), async (req, res) => {
   const outputFilePath = `/tmp/compressed-${file.originalname}`;
 
   if (!file) {
+    console.error('No file uploaded');
     return res.status(400).send('No file uploaded.');
   }
 
   try {
-    // Image compression
+    console.log(`File uploaded: ${file.originalname}, path: ${file.path}`);
+
+    // Image Compression Logic
     if (['.jpg', '.jpeg', '.png', '.webp'].includes(originalExtension)) {
       await sharp(file.path)
         .resize({ width: 800 }) // Example: Resize width
         .jpeg({ quality: 80 }) // Adjust quality
         .toFile(outputFilePath);
-    }
-    // Video compression
-    else if (['.mp4', '.mov', '.avi'].includes(originalExtension)) {
-      await new Promise((resolve, reject) => {
-        ffmpeg(file.path)
-          .outputOptions('-vcodec libx264', '-crf 28') // Lower quality for compression
-          .on('end', resolve)
-          .on('error', reject)
-          .save(outputFilePath);
-      });
+
+      console.log(`Image compressed and saved to ${outputFilePath}`);
     } else {
       return res.status(400).send('Unsupported file type.');
+    }
+
+    if (!fs.existsSync(outputFilePath)) {
+      throw new Error(`Output file not created: ${outputFilePath}`);
     }
 
     // Send the compressed file
@@ -47,12 +45,16 @@ app.post('/api/compress', upload.single('file'), async (req, res) => {
     res.setHeader('Content-Type', 'application/octet-stream');
     fs.createReadStream(outputFilePath).pipe(res);
   } catch (error) {
-    console.error('Error during compression:', error);
-    res.status(500).send('Failed to compress the file.');
+    console.error('Error during compression:', error.message);
+    res.status(500).send(`Failed to compress the file. Error: ${error.message}`);
   } finally {
     // Clean up temporary files
-    fs.unlink(file.path, () => {});
-    fs.unlink(outputFilePath, () => {});
+    fs.unlink(file.path, (err) => {
+      if (err) console.error(`Failed to delete input file: ${file.path}`, err.message);
+    });
+    fs.unlink(outputFilePath, (err) => {
+      if (err) console.error(`Failed to delete output file: ${outputFilePath}`, err.message);
+    });
   }
 });
 
