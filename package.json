@@ -1,18 +1,23 @@
 {
-  "name": "file-compressor",
+  "name": "media-compressor",
   "version": "1.0.0",
-  "description": "A simple file compressor app",
-  "main": "api/compress.js",
+  "private": true,
   "scripts": {
-    "start": "node api/compress.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "multer": "^1.4.4",
-    "sharp": "^0.32.1",
-    "fluent-ffmpeg": "^2.1.2"
+    "@ffmpeg/ffmpeg": "^0.11.0",
+    "multer": "^1.4.5-lts.1",
+    "next": "13.5.6",
+    "next-connect": "^0.12.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   },
-  "devDependencies": {},
-  "author": "Your Name",
-  "license": "MIT"
+  "devDependencies": {
+    "eslint": "8.50.0",
+    "eslint-config-next": "13.5.6"
+  }
 }
