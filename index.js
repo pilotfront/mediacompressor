@@ -1,22 +1,21 @@
 const express = require('express');
 const multer = require('multer');
 const sharp = require('sharp');
-const fs = require('fs');
-const path = require('path');
 const fluent_ffmpeg = require('fluent-ffmpeg');
+const path = require('path');
+const fs = require('fs');
+
 const app = express();
 
-// Middleware for parsing form data
+// Set up multer for file uploads
 const upload = multer({ dest: 'uploads/' });
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// POST route for compressing image
+// POST route for image compression
 app.post('/api/compress/image', upload.single('image'), (req, res) => {
   const filePath = req.file.path;
 
   sharp(filePath)
-    .resize(800) // Resize to 800px width
+    .resize(800)  // Resize to 800px width
     .toBuffer()
     .then((data) => {
       const outputPath = path.join('uploads', 'compressed_' + req.file.originalname);
@@ -28,7 +27,7 @@ app.post('/api/compress/image', upload.single('image'), (req, res) => {
     });
 });
 
-// POST route for compressing video
+// POST route for video compression
 app.post('/api/compress/video', upload.single('video'), (req, res) => {
   const inputPath = req.file.path;
   const outputPath = path.join('uploads', 'compressed_' + req.file.originalname);
@@ -49,7 +48,4 @@ app.post('/api/compress/video', upload.single('video'), (req, res) => {
 // Serve static files from the 'uploads' folder
 app.use('/uploads', express.static('uploads'));
 
-// Start server
-app.listen(3000, () => {
-  console.log('Server running on http://localhost:3000');
-});
+module.exports = app;
