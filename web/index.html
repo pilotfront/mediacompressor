@@ -88,42 +88,42 @@
 
   <script>
     document.querySelector('#compress-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
+  e.preventDefault();
 
-      const form = e.target;
-      const formData = new FormData(form);
+  const form = e.target;
+  const formData = new FormData(form);
 
-      // Display a loading message
-      const responseMessage = document.querySelector('#response-message');
-      responseMessage.textContent = 'Compressing your file, please wait...';
+  const responseMessage = document.querySelector('#response-message');
+  responseMessage.textContent = 'Compressing your file, please wait...';
 
-      try {
-        const response = await fetch('/api/compress', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (response.ok) {
-          const blob = await response.blob();
-          const url = URL.createObjectURL(blob);
-
-          // Create a download link
-          const downloadLink = document.createElement('a');
-          downloadLink.href = url;
-          downloadLink.download = 'compressed-file';
-          downloadLink.textContent = 'Click here to download your compressed file';
-          downloadLink.style.display = 'block';
-
-          responseMessage.innerHTML = '';
-          responseMessage.appendChild(downloadLink);
-        } else {
-          const errorText = await response.text();
-          responseMessage.textContent = `Error: ${errorText}`;
-        }
-      } catch (error) {
-        responseMessage.textContent = `Error: ${error.message}`;
-      }
+  try {
+    const response = await fetch('/api/compress', {
+      method: 'POST',
+      body: formData,
     });
+
+    if (response.ok) {
+      // Create a download link
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+
+      const downloadLink = document.createElement('a');
+      downloadLink.href = url;
+      downloadLink.download = formData.get('file').name; // Preserve original name
+      downloadLink.textContent = 'Click here to download your compressed file';
+      downloadLink.style.display = 'block';
+
+      responseMessage.innerHTML = '';
+      responseMessage.appendChild(downloadLink);
+    } else {
+      const errorText = await response.text();
+      responseMessage.textContent = `Error: ${errorText}`;
+    }
+  } catch (error) {
+    responseMessage.textContent = `Error: ${error.message}`;
+  }
+});
+
   </script>
 </body>
 </html>
