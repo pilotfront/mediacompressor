@@ -5,5 +5,11 @@
       "src": "api/compress.js",
       "use": "@vercel/node"
     }
+  ],
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/api/compress.js"
+    }
   ]
 }
