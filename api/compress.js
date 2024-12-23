@@ -1,49 +1,26 @@
-const express = require('express');
 const multer = require('multer');
-const sharp = require('sharp'); // For image compression
-const ffmpeg = require('fluent-ffmpeg'); // For video compression
-const fs = require('fs');
+const express = require('express');
 const path = require('path');
+const fs = require('fs');
 
-const app = express();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: '/tmp/uploads/' });
 
-app.post('/api/compress', upload.single('file'), async (req, res) => {
-    const file = req.file;
-    const targetSize = parseInt(req.body.size); // Desired file size in KB
+module.exports = async (req, res) => {
+  if (req.method === 'POST') {
+    upload.single('file')(req, res, async (err) => {
+      if (err) {
+        return res.status(500).send('File upload failed.');
+      }
 
-    if (!file || !targetSize) {
-        return res.status(400).send('File and size are required');
-    }
+      const file = req.file;
+      if (!file) {
+        return res.status(400).send('No file uploaded.');
+      }
 
-    const outputPath = `compressed/${file.filename}`;
-
-    try {
-        if (file.mimetype.startsWith('image/')) {
-            // Compress image
-            await sharp(file.path)
-                .jpeg({ quality: 50 })
-                .toFile(outputPath);
-
-        } else if (file.mimetype.startsWith('video/')) {
-            // Compress video
-            await new Promise((resolve, reject) => {
-                ffmpeg(file.path)
-                    .outputOptions('-b:v', `${targetSize}k`)
-                    .save(outputPath)
-                    .on('end', resolve)
-                    .on('error', reject);
-            });
-        }
-
-        res.download(outputPath, file.originalname, () => {
-            // Cleanup temporary files
-            fs.unlinkSync(file.path);
-            fs.unlinkSync(outputPath);
-        });
-    } catch (error) {
-        res.status(500).send('Error compressing file');
-    }
-});
-
-module.exports = app;
+      // Example response to indicate file upload success
+      res.status(200).send('File uploaded successfully!');
+    });
+  } else {
+    res.status(405).send('Method Not Allowed');
+  }
+};
