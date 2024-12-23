@@ -8,6 +8,11 @@
   ],
   "routes": [
     {
+      "src": "/convert",
+      "methods": ["POST"],
+      "dest": "/server.js"
+    },
+    {
       "src": "/(.*)",
       "dest": "/server.js"
     }
