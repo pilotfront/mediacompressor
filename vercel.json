@@ -2,21 +2,8 @@
   "version": 2,
   "builds": [
     {
-      "src": "package.json",
-      "use": "@vercel/next"
+      "src": "index.js",
+      "use": "@vercel/node"
     }
-  ],
-  "routes": [
-    {
-      "src": "/api/compress",
-      "dest": "/api/compress.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
-  ],
-  "env": {
-    "NEXT_PUBLIC_API_URL": "https://mediacompressor.vercel.app"
-  }
+  ]
 }
