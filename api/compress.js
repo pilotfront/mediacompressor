@@ -1,89 +1,55 @@
-const sharp = require('sharp');
-const ffmpeg = require('fluent-ffmpeg');
+const express = require('express');
 const multer = require('multer');
-const path = require('path');
+const sharp = require('sharp');
 const fs = require('fs');
+const path = require('path');
+const fluent_ffmpeg = require('fluent-ffmpeg');
+const app = express();
 
-// Multer setup for handling file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, '/tmp/uploads');
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
-const upload = multer({ storage: storage });
+// Middleware for parsing form data
+const upload = multer({ dest: 'uploads/' });
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Compress Image
-const compressImage = (filePath, targetSize) => {
-  return new Promise((resolve, reject) => {
-    sharp(filePath)
-      .resize({ width: targetSize })
-      .toFile(`/tmp/compressed/${path.basename(filePath)}`, (err, info) => {
-        if (err) reject(err);
-        resolve(info);
-      });
-  });
-};
+// POST route for compressing image
+app.post('/api/compress/image', upload.single('image'), (req, res) => {
+  const filePath = req.file.path;
 
-// Compress Video
-const compressVideo = (filePath, targetSize) => {
-  return new Promise((resolve, reject) => {
-    ffmpeg(filePath)
-      .outputOptions([`-b:v ${targetSize}k`])
-      .on('end', function () {
-        resolve(`/tmp/compressed/${path.basename(filePath)}`);
-      })
-      .on('error', function (err) {
-        reject(err);
-      })
-      .save(`/tmp/compressed/${path.basename(filePath)}`);
-  });
-};
-
-// Compress Endpoint
-module.exports = (req, res) => {
-  if (req.method === 'POST') {
-    upload.single('file')(req, res, async (err) => {
-      if (err) {
-        return res.status(400).json({ error: err.message });
-      }
-
-      const file = req.file;
-      const targetSize = req.body.size;
-
-      if (!file) return res.status(400).send('No file uploaded.');
-      if (!targetSize) return res.status(400).send('No target size provided.');
-
-      const extname = path.extname(file.originalname).toLowerCase();
-
-      // Ensure the "compressed" directory exists
-      if (!fs.existsSync('/tmp/compressed')) {
-        fs.mkdirSync('/tmp/compressed');
-      }
-
-      let compressedFilePath;
-      try {
-        if (extname === '.jpg' || extname === '.jpeg' || extname === '.png') {
-          compressedFilePath = await compressImage(file.path, targetSize);
-        } else if (extname === '.mp4' || extname === '.mov' || extname === '.avi') {
-          compressedFilePath = await compressVideo(file.path, targetSize);
-        } else {
-          return res.status(400).send('Unsupported file type.');
-        }
-
-        res.sendFile(compressedFilePath, () => {
-          // Clean up after sending the file
-          fs.unlinkSync(file.path);
-          fs.unlinkSync(compressedFilePath);
-        });
-      } catch (err) {
-        console.error(err);
-        res.status(500).send('Error compressing file.');
-      }
+  sharp(filePath)
+    .resize(800) // Resize to 800px width
+    .toBuffer()
+    .then((data) => {
+      const outputPath = path.join('uploads', 'compressed_' + req.file.originalname);
+      fs.writeFileSync(outputPath, data);
+      res.json({ message: 'Image compressed successfully!', file: outputPath });
+    })
+    .catch((err) => {
+      res.status(500).json({ error: 'Image compression failed', details: err });
     });
-  } else {
-    res.status(405).send('Method Not Allowed');
-  }
-};
+});
+
+// POST route for compressing video
+app.post('/api/compress/video', upload.single('video'), (req, res) => {
+  const inputPath = req.file.path;
+  const outputPath = path.join('uploads', 'compressed_' + req.file.originalname);
+
+  fluent_ffmpeg(inputPath)
+    .output(outputPath)
+    .videoCodec('libx264')
+    .audioCodec('aac')
+    .on('end', () => {
+      res.json({ message: 'Video compressed successfully!', file: outputPath });
+    })
+    .on('error', (err) => {
+      res.status(500).json({ error: 'Video compression failed', details: err });
+    })
+    .run();
+});
+
+// Serve static files from the 'uploads' folder
+app.use('/uploads', express.static('uploads'));
+
+// Start server
+app.listen(3000, () => {
+  console.log('Server running on http://localhost:3000');
+});
